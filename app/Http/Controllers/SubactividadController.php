@@ -9,11 +9,23 @@ use Illuminate\Http\Request;
 class SubactividadController extends Controller
 {
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $actividades = Actividad::orderBy('nombre')->get();
+        $actividadId = $request->get('actividad_id');
+        
+        return view('cronograma.subactividad-create', compact('actividades', 'actividadId'));
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Actividad $actividad)
+    public function store(Request $request)
     {
         $validated = $request->validate([
+            'actividad_id' => 'required|exists:actividades,id',
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'fecha_inicio' => 'nullable|date',
@@ -22,7 +34,7 @@ class SubactividadController extends Controller
             'estado' => 'required|in:pendiente,en_progreso,completado,pausado',
         ]);
 
-        $validated['actividad_id'] = $actividad->id;
+        $actividad = Actividad::findOrFail($validated['actividad_id']);
         $validated['progreso'] = $validated['progreso'] ?? 0;
 
         // Si no hay fechas, usar las de la actividad padre

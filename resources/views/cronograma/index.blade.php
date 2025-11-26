@@ -4,73 +4,79 @@
 
 @section('content')
 <div class="cronograma-container">
-    <!-- Header con estadísticas -->
-    <div class="card" style="margin-bottom: 1.5rem;">
-        <div class="card-header">
-            <div>
-                <h2 class="card-title">Cronograma del Proyecto</h2>
-                <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
-                    {{ $actividades->count() }} actividades en total
-                </p>
+    <!-- Header con estadísticas fijas -->
+    <div class="cronograma-header-fixed">
+        <div class="card-header-compact">
+            <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                <h2 class="card-title-compact">Cronograma</h2>
+                <span style="color: var(--text-secondary); font-size: 0.8125rem;">{{ $actividades->count() }} actividades</span>
             </div>
             <div style="display: flex; gap: 0.75rem; align-items: center;">
                 <div class="view-controls">
                     <button class="view-btn active" data-view="grouped" title="Vista Agrupada por Mes">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"></path>
                         </svg>
                     </button>
                     <button class="view-btn" data-view="gantt" title="Vista Gantt">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </button>
                     <button class="view-btn" data-view="cards" title="Vista Tarjetas">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                     </button>
                 </div>
-                <a href="{{ route('cronograma.create') }}" class="btn btn-primary">
-                    <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Nueva Actividad
-                </a>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{{ route('subactividades.create') }}" class="btn btn-secondary btn-sm">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Nueva Subactividad
+                    </a>
+                    <a href="{{ route('cronograma.create') }}" class="btn btn-primary btn-sm">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Nueva Actividad
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Estadísticas -->
-        <div class="estadisticas-grid">
-            <div class="estadistica-item">
-                <div class="estadistica-valor">{{ $estadisticas['total'] }}</div>
-                <div class="estadistica-label">Total Actividades</div>
+        <!-- Estadísticas compactas -->
+        <div class="estadisticas-grid-compact">
+            <div class="estadistica-item-compact">
+                <div class="estadistica-valor-compact">{{ $estadisticas['total'] }}</div>
+                <div class="estadistica-label-compact">Total</div>
             </div>
-            <div class="estadistica-item success">
-                <div class="estadistica-valor">{{ $estadisticas['completadas'] }}</div>
-                <div class="estadistica-label">Completadas</div>
+            <div class="estadistica-item-compact success">
+                <div class="estadistica-valor-compact">{{ $estadisticas['completadas'] }}</div>
+                <div class="estadistica-label-compact">Completadas</div>
             </div>
-            <div class="estadistica-item primary">
-                <div class="estadistica-valor">{{ $estadisticas['en_progreso'] }}</div>
-                <div class="estadistica-label">En Progreso</div>
+            <div class="estadistica-item-compact primary">
+                <div class="estadistica-valor-compact">{{ $estadisticas['en_progreso'] }}</div>
+                <div class="estadistica-label-compact">En Progreso</div>
             </div>
-            <div class="estadistica-item warning">
-                <div class="estadistica-valor">{{ $estadisticas['pendientes'] }}</div>
-                <div class="estadistica-label">Pendientes</div>
+            <div class="estadistica-item-compact warning">
+                <div class="estadistica-valor-compact">{{ $estadisticas['pendientes'] }}</div>
+                <div class="estadistica-label-compact">Pendientes</div>
             </div>
-            <div class="estadistica-item danger">
-                <div class="estadistica-valor">{{ $estadisticas['retrasadas'] }}</div>
-                <div class="estadistica-label">Retrasadas</div>
+            <div class="estadistica-item-compact danger">
+                <div class="estadistica-valor-compact">{{ $estadisticas['retrasadas'] }}</div>
+                <div class="estadistica-label-compact">Retrasadas</div>
             </div>
-            <div class="estadistica-item info">
-                <div class="estadistica-valor">{{ $estadisticas['por_vencer'] }}</div>
-                <div class="estadistica-label">Por Vencer (≤3 días)</div>
+            <div class="estadistica-item-compact info">
+                <div class="estadistica-valor-compact">{{ $estadisticas['por_vencer'] }}</div>
+                <div class="estadistica-label-compact">Por Vencer</div>
             </div>
         </div>
     </div>
 
     <!-- Filtros -->
-    <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card" style="margin-bottom: 1rem;">
         <form method="GET" action="{{ route('cronograma.index') }}" class="filtros-form">
             <div class="filtros-grid">
                 <div class="form-group" style="margin-bottom: 0;">
@@ -156,11 +162,11 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
                                             </button>
-                                            <button class="btn-icon-small btn-add-subactividad" data-actividad-id="{{ $actividad->id }}" title="Agregar Subactividad">
+                                            <a href="{{ route('subactividades.create', ['actividad_id' => $actividad->id]) }}" class="btn-icon-small" title="Agregar Subactividad">
                                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                 </svg>
-                                            </button>
+                                            </a>
                                             <a href="{{ route('cronograma.edit', $actividad) }}" class="btn-icon-small" title="Editar">
                                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -225,7 +231,7 @@
                                         </div>
                                     @else
                                         <div class="subactividades-empty">
-                                            <p>No hay subactividades. <button class="btn-link btn-add-subactividad" data-actividad-id="{{ $actividad->id }}">Agregar una</button></p>
+                                            <p>No hay subactividades. <a href="{{ route('subactividades.create', ['actividad_id' => $actividad->id]) }}" class="btn-link">Agregar una</a></p>
                                         </div>
                                     @endif
                                 </div>
@@ -446,65 +452,6 @@
     </div>
 </div>
 
-<!-- Modal para Subactividades -->
-<div class="modal" id="subactividadModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">Nueva Subactividad</h3>
-            <button class="modal-close" id="closeModal">&times;</button>
-        </div>
-        <form id="subactividadForm" method="POST">
-            @csrf
-            <input type="hidden" id="modalActividadId" name="actividad_id">
-            <input type="hidden" id="modalSubactividadId" name="subactividad_id">
-            
-            <div class="form-group">
-                <label for="subactividad_nombre" class="form-label">Nombre *</label>
-                <input type="text" id="subactividad_nombre" name="nombre" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-                <label for="subactividad_descripcion" class="form-label">Descripción</label>
-                <textarea id="subactividad_descripcion" name="descripcion" class="form-control" rows="3"></textarea>
-            </div>
-
-            <div class="grid grid-2">
-                <div class="form-group">
-                    <label for="subactividad_fecha_inicio" class="form-label">Fecha Inicio</label>
-                    <input type="date" id="subactividad_fecha_inicio" name="fecha_inicio" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label for="subactividad_fecha_fin" class="form-label">Fecha Fin</label>
-                    <input type="date" id="subactividad_fecha_fin" name="fecha_fin" class="form-control">
-                </div>
-            </div>
-
-            <div class="grid grid-2">
-                <div class="form-group">
-                    <label for="subactividad_estado" class="form-label">Estado *</label>
-                    <select id="subactividad_estado" name="estado" class="form-control" required>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_progreso">En Progreso</option>
-                        <option value="completado">Completado</option>
-                        <option value="pausado">Pausado</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="subactividad_progreso" class="form-label">Progreso (%)</label>
-                    <input type="number" id="subactividad_progreso" name="progreso" class="form-control" min="0" max="100" value="0">
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelModal">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @push('styles')
 <style>
 .cronograma-container {
@@ -512,37 +459,93 @@
     overflow-x: auto;
 }
 
-.estadisticas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+/* Header fijo compacto */
+.cronograma-header-fixed {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
 }
 
-.estadistica-item {
-    text-align: center;
-    padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: 0.5rem;
+.card-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.estadistica-valor {
-    font-size: 2rem;
-    font-weight: 700;
+.card-title-compact {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
     color: var(--text-primary);
 }
 
-.estadistica-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 0.5rem;
+/* Estadísticas compactas */
+.estadisticas-grid-compact {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
 }
 
-.estadistica-item.success .estadistica-valor { color: var(--success-color); }
-.estadistica-item.primary .estadistica-valor { color: var(--primary-color); }
-.estadistica-item.warning .estadistica-valor { color: var(--warning-color); }
-.estadistica-item.danger .estadistica-valor { color: var(--danger-color); }
-.estadistica-item.info .estadistica-valor { color: #3b82f6; }
+.estadisticas-grid-compact::-webkit-scrollbar {
+    height: 4px;
+}
+
+.estadisticas-grid-compact::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.estadistica-item-compact {
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 0.375rem;
+    min-width: 70px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+}
+
+.estadistica-valor-compact {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+    line-height: 1.2;
+}
+
+.estadistica-label-compact {
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.estadistica-item-compact.success .estadistica-valor-compact { color: var(--success-color); }
+.estadistica-item-compact.primary .estadistica-valor-compact { color: var(--primary-color); }
+.estadistica-item-compact.warning .estadistica-valor-compact { color: var(--warning-color); }
+.estadistica-item-compact.danger .estadistica-valor-compact { color: var(--danger-color); }
+.estadistica-item-compact.info .estadistica-valor-compact { color: #3b82f6; }
+
+/* Botones pequeños */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+.btn-sm .btn-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.375rem;
+}
 
 .filtros-form {
     padding: 0;
@@ -1245,61 +1248,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Modal de subactividades
-    const modal = document.getElementById('subactividadModal');
-    const form = document.getElementById('subactividadForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalActividadId = document.getElementById('modalActividadId');
-    const modalSubactividadId = document.getElementById('modalSubactividadId');
-    const closeModal = document.getElementById('closeModal');
-    const cancelModal = document.getElementById('cancelModal');
-
-    // Abrir modal para crear
-    document.querySelectorAll('.btn-add-subactividad').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const actividadId = this.dataset.actividadId;
-            modalActividadId.value = actividadId;
-            modalSubactividadId.value = '';
-            modalTitle.textContent = 'Nueva Subactividad';
-            form.reset();
-            form.action = `/cronograma/${actividadId}/subactividades`;
-            form.method = 'POST';
-            const methodInput = form.querySelector('input[name="_method"]');
-            if (methodInput) methodInput.remove();
-            modal.classList.add('active');
-        });
-    });
-
-    // Abrir modal para editar
-    document.querySelectorAll('.btn-edit-subactividad').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const subactividadId = this.dataset.subactividadId;
-            const actividadId = this.dataset.actividadId;
-            
-            // Aquí deberías cargar los datos de la subactividad
-            // Por ahora, solo abrimos el modal con la estructura
-            modalActividadId.value = actividadId;
-            modalSubactividadId.value = subactividadId;
-            modalTitle.textContent = 'Editar Subactividad';
-            
-            // Necesitarías hacer una petición AJAX para cargar los datos
-            // Por simplicidad, redirigimos a una ruta de edición
-            window.location.href = `/cronograma/${actividadId}/subactividades/${subactividadId}/edit`;
-        });
-    });
-
-    // Cerrar modal
-    if (closeModal) {
-        closeModal.addEventListener('click', () => modal.classList.remove('active'));
-    }
-    if (cancelModal) {
-        cancelModal.addEventListener('click', () => modal.classList.remove('active'));
-    }
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.classList.remove('active');
-        }
-    });
 });
 </script>
 @endpush
