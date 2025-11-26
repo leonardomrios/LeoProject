@@ -211,11 +211,11 @@
                                                         </div>
                                                     </div>
                                                     <div class="subactividad-actions">
-                                                        <button class="btn-icon-small btn-edit-subactividad" data-subactividad-id="{{ $subactividad->id }}" data-actividad-id="{{ $actividad->id }}" title="Editar">
+                                                        <a href="{{ route('subactividades.edit', ['actividad' => $actividad->id, 'subactividad' => $subactividad->id]) }}" class="btn-icon-small" title="Editar">
                                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                             </svg>
-                                                        </button>
+                                                        </a>
                                                         <form action="{{ route('subactividades.destroy', ['actividad' => $actividad->id, 'subactividad' => $subactividad->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar esta subactividad?');">
                                                             @csrf
                                                             @method('DELETE')

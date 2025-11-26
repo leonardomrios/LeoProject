@@ -9,7 +9,7 @@
         <a href="{{ route('cronograma.index') }}" class="btn btn-secondary">Volver</a>
     </div>
 
-    <form action="{{ route('subactividades.update', ['actividad' => $actividad->id, 'subactividad' => $subactividad->id]) }}" method="POST">
+    <form action="{{ route('subactividades.update', ['actividad' => $actividad, 'subactividad' => $subactividad]) }}" method="POST">
         @csrf
         @method('PUT')
 
