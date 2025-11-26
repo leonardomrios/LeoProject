@@ -12,7 +12,7 @@
 <body>
     <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1 class="sidebar-logo">Mi Panel</h1>
             </div>
@@ -35,11 +35,22 @@
                     </svg>
                     <span>Autoanálisis</span>
                 </a>
+                <a href="{{ route('cronograma.index') }}" class="nav-item {{ request()->routeIs('cronograma.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>Cronograma</span>
+                </a>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content" id="mainContent">
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="Contraer/Expandir menú">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
             <div class="content-wrapper">
                 @if(session('success'))
                     <div class="alert alert-success">

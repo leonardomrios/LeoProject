@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Actividad;
 use App\Models\AutoanalisisRespuesta;
 use App\Models\DofaElement;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             });
             Route::bind('autoanalisi', function ($value) {
                 return AutoanalisisRespuesta::findOrFail($value);
+            });
+            Route::bind('cronograma', function ($value) {
+                return Actividad::findOrFail($value);
             });
         },
     )

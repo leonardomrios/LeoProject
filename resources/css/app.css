@@ -46,11 +46,20 @@ body {
     overflow-y: auto;
     box-shadow: var(--shadow-lg);
     z-index: 1000;
+    transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
 }
 
 .sidebar-header {
     padding: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
 }
 
 .sidebar-logo {
@@ -58,6 +67,34 @@ body {
     font-weight: 700;
     color: white;
     margin: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-toggle-btn:hover {
+    transform: scale(1.05);
+    background: var(--primary-dark);
+}
+
+.main-content.sidebar-collapsed .sidebar-toggle-btn {
+    left: 1rem;
 }
 
 .sidebar-nav {
@@ -89,6 +126,12 @@ body {
     width: 20px;
     height: 20px;
     margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.nav-item span {
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
 }
 
 /* Main Content */
@@ -96,6 +139,11 @@ body {
     flex: 1;
     margin-left: 260px;
     min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 0;
 }
 
 .content-wrapper {
@@ -423,13 +471,20 @@ select.form-control {
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+        transform: translateX(-100%);
+        width: 260px;
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
     }
 
     .main-content {
         margin-left: 0;
+    }
+    
+    .sidebar-toggle-btn {
+        left: 1rem;
     }
 
     .dofa-matrix {

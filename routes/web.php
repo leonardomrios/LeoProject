@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AutoanalisisController;
+use App\Http\Controllers\CronogramaController;
 use App\Http\Controllers\DofaController;
 use App\Http\Controllers\ObjetivoController;
 use Illuminate\Support\Facades\Route;
@@ -12,3 +13,5 @@ Route::get('/', function () {
 Route::resource('objetivos', ObjetivoController::class);
 Route::resource('dofa', DofaController::class);
 Route::resource('autoanalisis', AutoanalisisController::class);
+Route::resource('cronograma', CronogramaController::class);
+Route::post('cronograma/{cronograma}/progreso', [CronogramaController::class, 'updateProgreso'])->name('cronograma.progreso');

@@ -21,5 +21,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seed de actividades del plan de gimnasio
+        $this->call([
+            ActividadSeeder::class,
+        ]);
     }
 }
