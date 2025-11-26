@@ -41,7 +41,7 @@ class CronogramaController extends Controller
             $query->orderBy($orden, $direccion);
         }
 
-        $actividades = $query->get();
+        $actividades = $query->with('subactividades')->get();
 
         // Agrupar actividades por mes
         $actividadesPorMes = $actividades->groupBy(function($actividad) {

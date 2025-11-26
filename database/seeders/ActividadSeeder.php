@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Actividad;
+use App\Models\Subactividad;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -16,249 +17,127 @@ class ActividadSeeder extends Seeder
         $hoy = Carbon::now();
         $inicioPlan = $hoy->copy()->startOfWeek();
         
-        // Limpiar actividades existentes (opcional)
-        // Actividad::truncate();
+        // Limpiar actividades existentes
+        Actividad::truncate();
 
-        $actividades = [
-            // MES 1 - FASE DE ADAPTACIÓN
-            [
-                'nombre' => 'Evaluación Inicial y Planificación',
-                'descripcion' => 'Medición de composición corporal, fuerza inicial, y diseño del plan personalizado de entrenamiento y nutrición.',
-                'fecha_inicio' => $inicioPlan->copy(),
-                'fecha_fin' => $inicioPlan->copy()->addDays(3),
-                'progreso' => 100,
-                'estado' => 'completado',
-                'prioridad' => 'alta',
-                'color' => '#10b981',
-            ],
-            [
-                'nombre' => 'Fase de Adaptación - Semana 1-2',
-                'descripcion' => 'Inicio del entrenamiento con ejercicios básicos. Enfoque en técnica correcta y adaptación del cuerpo al ejercicio.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(4),
-                'fecha_fin' => $inicioPlan->copy()->addDays(17),
-                'progreso' => 100,
-                'estado' => 'completado',
-                'prioridad' => 'alta',
-                'color' => '#6366f1',
-            ],
-            [
-                'nombre' => 'Ajuste de Plan Nutricional',
-                'descripcion' => 'Revisión y ajuste del plan nutricional basado en la respuesta inicial del cuerpo y objetivos de ganancia de masa.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(18),
-                'fecha_fin' => $inicioPlan->copy()->addDays(24),
-                'progreso' => 100,
-                'estado' => 'completado',
-                'prioridad' => 'media',
-                'color' => '#8b5cf6',
-            ],
-            [
-                'nombre' => 'Fase de Adaptación - Semana 3-4',
-                'descripcion' => 'Continuación del entrenamiento adaptativo. Incremento gradual de intensidad y volumen.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(25),
-                'fecha_fin' => $inicioPlan->copy()->addDays(38),
-                'progreso' => 75,
-                'estado' => 'en_progreso',
-                'prioridad' => 'alta',
-                'color' => '#6366f1',
-            ],
+        // FASE 1: Fundamentos y Conceptos Básicos (Semana 1-2)
+        $actividad1 = Actividad::create([
+            'nombre' => 'Fundamentos de Programación Orientada a Objetos',
+            'descripcion' => 'Aprender los conceptos fundamentales de POO: clases, objetos, encapsulación, herencia, polimorfismo y abstracción.',
+            'fecha_inicio' => $inicioPlan->copy(),
+            'fecha_fin' => $inicioPlan->copy()->addDays(13),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'critica',
+            'color' => '#6366f1',
+        ]);
 
-            // MES 2 - FASE DE HIPERTROFIA INICIAL
-            [
-                'nombre' => 'Primera Evaluación de Progreso',
-                'descripcion' => 'Medición de cambios en composición corporal, fuerza y medidas corporales después del primer mes.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(39),
-                'fecha_fin' => $inicioPlan->copy()->addDays(42),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#f59e0b',
-            ],
-            [
-                'nombre' => 'Fase de Hipertrofia I - Mes 2',
-                'descripcion' => 'Entrenamiento enfocado en hipertrofia con rangos de 8-12 repeticiones. Enfoque en grupos musculares principales.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(43),
-                'fecha_fin' => $inicioPlan->copy()->addDays(72),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'critica',
-                'color' => '#ef4444',
-            ],
-            [
-                'nombre' => 'Optimización de Suplementación',
-                'descripcion' => 'Evaluación e incorporación de suplementos (proteína, creatina, etc.) según necesidades y objetivos.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(50),
-                'fecha_fin' => $inicioPlan->copy()->addDays(56),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'media',
-                'color' => '#8b5cf6',
-            ],
+        Subactividad::create(['actividad_id' => $actividad1->id, 'nombre' => 'Introducción a POO: Historia y principios', 'descripcion' => 'Estudiar el origen de POO y sus principios fundamentales', 'fecha_inicio' => $inicioPlan->copy(), 'fecha_fin' => $inicioPlan->copy()->addDays(2), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad1->id, 'nombre' => 'Clases y Objetos: Definición y creación', 'descripcion' => 'Aprender a definir clases y crear instancias de objetos', 'fecha_inicio' => $inicioPlan->copy()->addDays(3), 'fecha_fin' => $inicioPlan->copy()->addDays(5), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad1->id, 'nombre' => 'Encapsulación: Atributos y métodos privados', 'descripcion' => 'Entender el concepto de encapsulación y modificadores de acceso', 'fecha_inicio' => $inicioPlan->copy()->addDays(6), 'fecha_fin' => $inicioPlan->copy()->addDays(8), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad1->id, 'nombre' => 'Proyecto práctico: Crear primera clase', 'descripcion' => 'Implementar una clase completa con encapsulación', 'fecha_inicio' => $inicioPlan->copy()->addDays(9), 'fecha_fin' => $inicioPlan->copy()->addDays(13), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
 
-            // MES 3 - FASE DE HIPERTROFIA AVANZADA
-            [
-                'nombre' => 'Segunda Evaluación de Progreso',
-                'descripcion' => 'Análisis detallado del progreso a los 2 meses. Ajustes al plan según resultados obtenidos.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(73),
-                'fecha_fin' => $inicioPlan->copy()->addDays(76),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#f59e0b',
-            ],
-            [
-                'nombre' => 'Fase de Hipertrofia II - Mes 3',
-                'descripcion' => 'Intensificación del entrenamiento. Incorporación de técnicas avanzadas (drop sets, superseries, etc.).',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(77),
-                'fecha_fin' => $inicioPlan->copy()->addDays(106),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'critica',
-                'color' => '#ef4444',
-            ],
-            [
-                'nombre' => 'Ajuste de Macros y Calorías',
-                'descripcion' => 'Recálculo de necesidades calóricas y distribución de macronutrientes basado en el nuevo peso y composición corporal.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(85),
-                'fecha_fin' => $inicioPlan->copy()->addDays(91),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#8b5cf6',
-            ],
+        // FASE 2: Herencia y Polimorfismo (Semana 3-4)
+        $actividad2 = Actividad::create([
+            'nombre' => 'Herencia y Polimorfismo',
+            'descripcion' => 'Dominar los conceptos de herencia, sobreescritura de métodos y polimorfismo para crear jerarquías de clases.',
+            'fecha_inicio' => $inicioPlan->copy()->addDays(14),
+            'fecha_fin' => $inicioPlan->copy()->addDays(27),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'critica',
+            'color' => '#8b5cf6',
+        ]);
 
-            // MES 4 - FASE DE FUERZA E HIPERTROFIA
-            [
-                'nombre' => 'Tercera Evaluación de Progreso',
-                'descripcion' => 'Evaluación intermedia a los 3 meses. Análisis de ganancias de masa muscular y fuerza.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(107),
-                'fecha_fin' => $inicioPlan->copy()->addDays(110),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#f59e0b',
-            ],
-            [
-                'nombre' => 'Fase de Fuerza e Hipertrofia - Mes 4',
-                'descripcion' => 'Entrenamiento híbrido combinando trabajo de fuerza (3-6 repeticiones) con hipertrofia (8-12 repeticiones).',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(111),
-                'fecha_fin' => $inicioPlan->copy()->addDays(140),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'critica',
-                'color' => '#ef4444',
-            ],
-            [
-                'nombre' => 'Periodo de Descanso Activo',
-                'descripcion' => 'Semana de recuperación con entrenamiento ligero y enfoque en recuperación y regeneración.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(127),
-                'fecha_fin' => $inicioPlan->copy()->addDays(133),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'media',
-                'color' => '#6366f1',
-            ],
+        Subactividad::create(['actividad_id' => $actividad2->id, 'nombre' => 'Conceptos de Herencia: Clases padre e hijas', 'descripcion' => 'Aprender a crear jerarquías de clases mediante herencia', 'fecha_inicio' => $inicioPlan->copy()->addDays(14), 'fecha_fin' => $inicioPlan->copy()->addDays(17), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad2->id, 'nombre' => 'Sobreescritura de métodos (Override)', 'descripcion' => 'Aprender a modificar el comportamiento de métodos heredados', 'fecha_inicio' => $inicioPlan->copy()->addDays(18), 'fecha_fin' => $inicioPlan->copy()->addDays(20), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad2->id, 'nombre' => 'Polimorfismo: Múltiples formas', 'descripcion' => 'Entender cómo un objeto puede tomar múltiples formas', 'fecha_inicio' => $inicioPlan->copy()->addDays(21), 'fecha_fin' => $inicioPlan->copy()->addDays(24), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad2->id, 'nombre' => 'Proyecto: Sistema de figuras geométricas', 'descripcion' => 'Crear un sistema con clases base y derivadas usando herencia y polimorfismo', 'fecha_inicio' => $inicioPlan->copy()->addDays(25), 'fecha_fin' => $inicioPlan->copy()->addDays(27), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
 
-            // MES 5 - FASE DE VOLUMEN
-            [
-                'nombre' => 'Cuarta Evaluación de Progreso',
-                'descripcion' => 'Evaluación a los 4 meses. Medición de ganancias totales y ajustes finales del plan.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(141),
-                'fecha_fin' => $inicioPlan->copy()->addDays(144),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#f59e0b',
-            ],
-            [
-                'nombre' => 'Fase de Alto Volumen - Mes 5',
-                'descripcion' => 'Entrenamiento de alto volumen con múltiples series y ejercicios. Enfoque máximo en hipertrofia.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(145),
-                'fecha_fin' => $inicioPlan->copy()->addDays(174),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'critica',
-                'color' => '#ef4444',
-            ],
-            [
-                'nombre' => 'Optimización de Recuperación',
-                'descripcion' => 'Implementación de técnicas avanzadas de recuperación: masajes, estiramientos, sueño optimizado.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(160),
-                'fecha_fin' => $inicioPlan->copy()->addDays(180),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'media',
-                'color' => '#8b5cf6',
-            ],
+        // FASE 3: Abstracción e Interfaces (Semana 5-6)
+        $actividad3 = Actividad::create([
+            'nombre' => 'Abstracción e Interfaces',
+            'descripcion' => 'Aprender a usar clases abstractas e interfaces para definir contratos y comportamientos comunes.',
+            'fecha_inicio' => $inicioPlan->copy()->addDays(28),
+            'fecha_fin' => $inicioPlan->copy()->addDays(41),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'alta',
+            'color' => '#10b981',
+        ]);
 
-            // MES 6 - FASE FINAL Y CONSOLIDACIÓN
-            [
-                'nombre' => 'Quinta Evaluación de Progreso',
-                'descripcion' => 'Evaluación a los 5 meses. Análisis completo de resultados y preparación para la fase final.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(175),
-                'fecha_fin' => $inicioPlan->copy()->addDays(178),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#f59e0b',
-            ],
-            [
-                'nombre' => 'Fase Final de Consolidación - Mes 6',
-                'descripcion' => 'Último mes del plan. Consolidación de ganancias, perfeccionamiento de técnica y preparación para mantenimiento.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(179),
-                'fecha_fin' => $inicioPlan->copy()->addDays(208),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'critica',
-                'color' => '#ef4444',
-            ],
-            [
-                'nombre' => 'Evaluación Final y Plan de Mantenimiento',
-                'descripcion' => 'Evaluación completa final. Comparación de resultados iniciales vs finales. Diseño de plan de mantenimiento a largo plazo.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(209),
-                'fecha_fin' => $inicioPlan->copy()->addDays(215),
-                'progreso' => 0,
-                'estado' => 'pendiente',
-                'prioridad' => 'alta',
-                'color' => '#10b981',
-            ],
+        Subactividad::create(['actividad_id' => $actividad3->id, 'nombre' => 'Clases Abstractas: Definición y uso', 'descripcion' => 'Aprender a crear y usar clases abstractas', 'fecha_inicio' => $inicioPlan->copy()->addDays(28), 'fecha_fin' => $inicioPlan->copy()->addDays(31), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad3->id, 'nombre' => 'Interfaces: Contratos y múltiple herencia', 'descripcion' => 'Entender interfaces y cómo implementar múltiples contratos', 'fecha_inicio' => $inicioPlan->copy()->addDays(32), 'fecha_fin' => $inicioPlan->copy()->addDays(35), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad3->id, 'nombre' => 'Diferencias: Abstractas vs Interfaces', 'descripcion' => 'Comprender cuándo usar clases abstractas y cuándo interfaces', 'fecha_inicio' => $inicioPlan->copy()->addDays(36), 'fecha_fin' => $inicioPlan->copy()->addDays(38), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad3->id, 'nombre' => 'Proyecto: Sistema de pagos con interfaces', 'descripcion' => 'Implementar un sistema de pagos usando interfaces para diferentes métodos', 'fecha_inicio' => $inicioPlan->copy()->addDays(39), 'fecha_fin' => $inicioPlan->copy()->addDays(41), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
 
-            // ACTIVIDADES COMPLEMENTARIAS
-            [
-                'nombre' => 'Seguimiento Semanal de Peso y Medidas',
-                'descripcion' => 'Registro semanal de peso corporal, medidas de cintura, brazos, piernas y porcentaje de grasa.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(4),
-                'fecha_fin' => $inicioPlan->copy()->addDays(215),
-                'progreso' => 25,
-                'estado' => 'en_progreso',
-                'prioridad' => 'media',
-                'color' => '#6366f1',
-            ],
-            [
-                'nombre' => 'Registro Diario de Entrenamientos',
-                'descripcion' => 'Documentación diaria de ejercicios, series, repeticiones, pesos y sensaciones durante el entrenamiento.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(4),
-                'fecha_fin' => $inicioPlan->copy()->addDays(215),
-                'progreso' => 30,
-                'estado' => 'en_progreso',
-                'prioridad' => 'media',
-                'color' => '#6366f1',
-            ],
-            [
-                'nombre' => 'Registro de Alimentación',
-                'descripcion' => 'Seguimiento diario de comidas, macros y calorías para asegurar cumplimiento del plan nutricional.',
-                'fecha_inicio' => $inicioPlan->copy()->addDays(4),
-                'fecha_fin' => $inicioPlan->copy()->addDays(215),
-                'progreso' => 28,
-                'estado' => 'en_progreso',
-                'prioridad' => 'alta',
-                'color' => '#8b5cf6',
-            ],
-        ];
+        // FASE 4: Principios SOLID (Semana 7-8)
+        $actividad4 = Actividad::create([
+            'nombre' => 'Principios SOLID',
+            'descripcion' => 'Estudiar y aplicar los cinco principios SOLID para escribir código mantenible y escalable.',
+            'fecha_inicio' => $inicioPlan->copy()->addDays(42),
+            'fecha_fin' => $inicioPlan->copy()->addDays(55),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'alta',
+            'color' => '#f59e0b',
+        ]);
 
-        foreach ($actividades as $actividad) {
-            Actividad::create($actividad);
-        }
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'S - Single Responsibility Principle', 'descripcion' => 'Cada clase debe tener una única responsabilidad', 'fecha_inicio' => $inicioPlan->copy()->addDays(42), 'fecha_fin' => $inicioPlan->copy()->addDays(44), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'O - Open/Closed Principle', 'descripcion' => 'Abierto para extensión, cerrado para modificación', 'fecha_inicio' => $inicioPlan->copy()->addDays(45), 'fecha_fin' => $inicioPlan->copy()->addDays(47), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'L - Liskov Substitution Principle', 'descripcion' => 'Los objetos derivados deben poder sustituir a los base', 'fecha_inicio' => $inicioPlan->copy()->addDays(48), 'fecha_fin' => $inicioPlan->copy()->addDays(50), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'I - Interface Segregation Principle', 'descripcion' => 'Interfaces específicas mejor que una interfaz general', 'fecha_inicio' => $inicioPlan->copy()->addDays(51), 'fecha_fin' => $inicioPlan->copy()->addDays(52), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'D - Dependency Inversion Principle', 'descripcion' => 'Depender de abstracciones, no de concreciones', 'fecha_inicio' => $inicioPlan->copy()->addDays(53), 'fecha_fin' => $inicioPlan->copy()->addDays(54), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 5]);
+        Subactividad::create(['actividad_id' => $actividad4->id, 'nombre' => 'Proyecto: Refactorizar código aplicando SOLID', 'descripcion' => 'Refactorizar un proyecto existente aplicando todos los principios SOLID', 'fecha_inicio' => $inicioPlan->copy()->addDays(55), 'fecha_fin' => $inicioPlan->copy()->addDays(55), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 6]);
 
-        $this->command->info('✅ Se han creado ' . count($actividades) . ' actividades del plan de gimnasio.');
+        // FASE 5: Patrones de Diseño Básicos (Semana 9-10)
+        $actividad5 = Actividad::create([
+            'nombre' => 'Patrones de Diseño Fundamentales',
+            'descripcion' => 'Aprender los patrones de diseño más comunes: Singleton, Factory, Observer y Strategy.',
+            'fecha_inicio' => $inicioPlan->copy()->addDays(56),
+            'fecha_fin' => $inicioPlan->copy()->addDays(69),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'media',
+            'color' => '#ef4444',
+        ]);
+
+        Subactividad::create(['actividad_id' => $actividad5->id, 'nombre' => 'Patrón Singleton: Instancia única', 'descripcion' => 'Implementar el patrón Singleton para garantizar una única instancia', 'fecha_inicio' => $inicioPlan->copy()->addDays(56), 'fecha_fin' => $inicioPlan->copy()->addDays(59), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad5->id, 'nombre' => 'Patrón Factory: Creación de objetos', 'descripcion' => 'Usar Factory para crear objetos sin especificar la clase exacta', 'fecha_inicio' => $inicioPlan->copy()->addDays(60), 'fecha_fin' => $inicioPlan->copy()->addDays(63), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad5->id, 'nombre' => 'Patrón Observer: Notificaciones', 'descripcion' => 'Implementar Observer para notificar cambios a múltiples objetos', 'fecha_inicio' => $inicioPlan->copy()->addDays(64), 'fecha_fin' => $inicioPlan->copy()->addDays(66), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad5->id, 'nombre' => 'Patrón Strategy: Algoritmos intercambiables', 'descripcion' => 'Usar Strategy para definir familias de algoritmos intercambiables', 'fecha_inicio' => $inicioPlan->copy()->addDays(67), 'fecha_fin' => $inicioPlan->copy()->addDays(69), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
+
+        // FASE 6: Proyecto Final Integrador (Semana 11-12)
+        $actividad6 = Actividad::create([
+            'nombre' => 'Proyecto Final: Sistema Completo con POO',
+            'descripcion' => 'Desarrollar un proyecto completo aplicando todos los conceptos aprendidos: herencia, polimorfismo, interfaces, SOLID y patrones de diseño.',
+            'fecha_inicio' => $inicioPlan->copy()->addDays(70),
+            'fecha_fin' => $inicioPlan->copy()->addDays(83),
+            'progreso' => 0,
+            'estado' => 'pendiente',
+            'prioridad' => 'critica',
+            'color' => '#10b981',
+        ]);
+
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Diseño del sistema: Arquitectura y clases', 'descripcion' => 'Diseñar la arquitectura del proyecto y definir las clases principales', 'fecha_inicio' => $inicioPlan->copy()->addDays(70), 'fecha_fin' => $inicioPlan->copy()->addDays(72), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 1]);
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Implementación de clases base y herencia', 'descripcion' => 'Crear las clases base y establecer jerarquías mediante herencia', 'fecha_inicio' => $inicioPlan->copy()->addDays(73), 'fecha_fin' => $inicioPlan->copy()->addDays(76), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 2]);
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Aplicación de interfaces y abstracción', 'descripcion' => 'Implementar interfaces para definir contratos y comportamientos', 'fecha_inicio' => $inicioPlan->copy()->addDays(77), 'fecha_fin' => $inicioPlan->copy()->addDays(79), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 3]);
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Refactorización aplicando principios SOLID', 'descripcion' => 'Refactorizar el código para cumplir con los principios SOLID', 'fecha_inicio' => $inicioPlan->copy()->addDays(80), 'fecha_fin' => $inicioPlan->copy()->addDays(81), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 4]);
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Implementación de patrones de diseño', 'descripcion' => 'Aplicar patrones de diseño apropiados donde sea necesario', 'fecha_inicio' => $inicioPlan->copy()->addDays(82), 'fecha_fin' => $inicioPlan->copy()->addDays(82), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 5]);
+        Subactividad::create(['actividad_id' => $actividad6->id, 'nombre' => 'Documentación y presentación final', 'descripcion' => 'Documentar el proyecto y preparar presentación del sistema completo', 'fecha_inicio' => $inicioPlan->copy()->addDays(83), 'fecha_fin' => $inicioPlan->copy()->addDays(83), 'progreso' => 0, 'estado' => 'pendiente', 'orden' => 6]);
+
+        // Recalcular progreso de todas las actividades
+        Actividad::all()->each(function($actividad) {
+            $actividad->calcularProgresoDesdeSubactividades();
+        });
+
+        $fechaInicio = Carbon::parse(Actividad::min('fecha_inicio'));
+        $fechaFin = Carbon::parse(Actividad::max('fecha_fin'));
+        $duracion = $fechaInicio->diffInDays($fechaFin) + 1;
+
+        $this->command->info('✅ Se ha creado el roadmap de "Fundamentos de Programación Orientada a Objetos"');
+        $this->command->info('   - ' . Actividad::count() . ' actividades principales');
+        $this->command->info('   - ' . Subactividad::count() . ' subactividades');
+        $this->command->info('   - Duración total: ' . $duracion . ' días');
     }
 }

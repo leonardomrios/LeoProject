@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Actividad extends Model
 {
@@ -100,5 +101,49 @@ class Actividad extends Model
     {
         $diasRestantes = now()->startOfDay()->diffInDays($this->fecha_fin->startOfDay(), false);
         return $diasRestantes >= 0 && $diasRestantes <= 3 && $this->estado !== 'completado';
+    }
+
+    /**
+     * Relación con subactividades
+     */
+    public function subactividades(): HasMany
+    {
+        return $this->hasMany(Subactividad::class)->orderBy('orden');
+    }
+
+    /**
+     * Calcular progreso basado en subactividades
+     */
+    public function calcularProgresoDesdeSubactividades(): void
+    {
+        $subactividades = $this->subactividades;
+        
+        if ($subactividades->isEmpty()) {
+            return; // No actualizar si no hay subactividades
+        }
+
+        $progresoTotal = $subactividades->sum('progreso');
+        $progresoPromedio = (int) round($progresoTotal / $subactividades->count());
+        
+        $this->progreso = $progresoPromedio;
+        
+        // Actualizar estado basado en progreso
+        if ($progresoPromedio == 100) {
+            $this->estado = 'completado';
+        } elseif ($progresoPromedio > 0) {
+            $this->estado = 'en_progreso';
+        } else {
+            $this->estado = 'pendiente';
+        }
+        
+        $this->save();
+    }
+
+    /**
+     * Verificar si tiene subactividades
+     */
+    public function getTieneSubactividadesAttribute(): bool
+    {
+        return $this->subactividades()->exists();
     }
 }

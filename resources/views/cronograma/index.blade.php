@@ -15,7 +15,7 @@
             </div>
             <div style="display: flex; gap: 0.75rem; align-items: center;">
                 <div class="view-controls">
-                    <button class="view-btn" data-view="grouped" title="Vista Agrupada por Mes">
+                    <button class="view-btn active" data-view="grouped" title="Vista Agrupada por Mes">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"></path>
                         </svg>
@@ -151,6 +151,16 @@
                                             </div>
                                         </div>
                                         <div class="activity-item-actions">
+                                            <button class="btn-icon-small toggle-subactividades" data-actividad-id="{{ $actividad->id }}" title="Ver/OCultar Subactividades">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="btn-icon-small btn-add-subactividad" data-actividad-id="{{ $actividad->id }}" title="Agregar Subactividad">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                            </button>
                                             <a href="{{ route('cronograma.edit', $actividad) }}" class="btn-icon-small" title="Editar">
                                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -167,6 +177,57 @@
                                             </form>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <!-- Subactividades -->
+                                <div class="subactividades-container" id="subactividades-{{ $actividad->id }}" style="display: none;">
+                                    @if($actividad->subactividades->count() > 0)
+                                        <div class="subactividades-list">
+                                            @foreach($actividad->subactividades as $subactividad)
+                                                <div class="subactividad-item">
+                                                    <div class="subactividad-content">
+                                                        <div class="subactividad-header">
+                                                            <span class="subactividad-indicator">└─</span>
+                                                            <h5>{{ $subactividad->nombre }}</h5>
+                                                            <span class="estado-badge estado-{{ $subactividad->estado }}">{{ ucfirst(str_replace('_', ' ', $subactividad->estado)) }}</span>
+                                                        </div>
+                                                        @if($subactividad->descripcion)
+                                                            <p class="subactividad-desc">{{ Str::limit($subactividad->descripcion, 80) }}</p>
+                                                        @endif
+                                                        <div class="subactividad-meta">
+                                                            @if($subactividad->fecha_inicio && $subactividad->fecha_fin)
+                                                                <span>{{ $subactividad->fecha_inicio->format('d/m/Y') }} - {{ $subactividad->fecha_fin->format('d/m/Y') }}</span>
+                                                            @endif
+                                                            <span class="subactividad-progreso">{{ $subactividad->progreso }}%</span>
+                                                        </div>
+                                                        <div class="subactividad-progress-bar">
+                                                            <div class="progress-fill-small" style="width: {{ $subactividad->progreso }}%; background-color: {{ $actividad->color }};"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="subactividad-actions">
+                                                        <button class="btn-icon-small btn-edit-subactividad" data-subactividad-id="{{ $subactividad->id }}" data-actividad-id="{{ $actividad->id }}" title="Editar">
+                                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
+                                                        </button>
+                                                        <form action="{{ route('subactividades.destroy', ['actividad' => $actividad->id, 'subactividad' => $subactividad->id]) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar esta subactividad?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn-icon-small" title="Eliminar">
+                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="subactividades-empty">
+                                            <p>No hay subactividades. <button class="btn-link btn-add-subactividad" data-actividad-id="{{ $actividad->id }}">Agregar una</button></p>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -382,6 +443,65 @@
                 </div>
             @endif
         </div>
+    </div>
+</div>
+
+<!-- Modal para Subactividades -->
+<div class="modal" id="subactividadModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Nueva Subactividad</h3>
+            <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <form id="subactividadForm" method="POST">
+            @csrf
+            <input type="hidden" id="modalActividadId" name="actividad_id">
+            <input type="hidden" id="modalSubactividadId" name="subactividad_id">
+            
+            <div class="form-group">
+                <label for="subactividad_nombre" class="form-label">Nombre *</label>
+                <input type="text" id="subactividad_nombre" name="nombre" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="subactividad_descripcion" class="form-label">Descripción</label>
+                <textarea id="subactividad_descripcion" name="descripcion" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="subactividad_fecha_inicio" class="form-label">Fecha Inicio</label>
+                    <input type="date" id="subactividad_fecha_inicio" name="fecha_inicio" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="subactividad_fecha_fin" class="form-label">Fecha Fin</label>
+                    <input type="date" id="subactividad_fecha_fin" name="fecha_fin" class="form-control">
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="subactividad_estado" class="form-label">Estado *</label>
+                    <select id="subactividad_estado" name="estado" class="form-control" required>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_progreso">En Progreso</option>
+                        <option value="completado">Completado</option>
+                        <option value="pausado">Pausado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subactividad_progreso" class="form-label">Progreso (%)</label>
+                    <input type="number" id="subactividad_progreso" name="progreso" class="form-control" min="0" max="100" value="0">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelModal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1014,35 +1134,65 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Toggle entre vistas
     const viewButtons = document.querySelectorAll('.view-btn');
+    const groupedView = document.getElementById('groupedView');
     const ganttView = document.getElementById('ganttView');
     const cardsView = document.getElementById('cardsView');
 
-    if (viewButtons.length > 0 && ganttView && cardsView) {
+    function showView(viewName) {
+        // Ocultar todas las vistas primero con !important para asegurar que se aplique
+        if (groupedView) {
+            groupedView.setAttribute('style', 'display: none !important;');
+        }
+        if (ganttView) {
+            ganttView.setAttribute('style', 'display: none !important;');
+        }
+        if (cardsView) {
+            cardsView.setAttribute('style', 'display: none !important;');
+        }
+
+        // Mostrar la vista seleccionada
+        if (viewName === 'grouped') {
+            if (groupedView) {
+                groupedView.setAttribute('style', 'display: block !important;');
+            }
+        } else if (viewName === 'gantt') {
+            if (ganttView) {
+                ganttView.setAttribute('style', 'display: block !important;');
+            }
+        } else if (viewName === 'cards') {
+            if (cardsView) {
+                cardsView.setAttribute('style', 'display: block !important;');
+            }
+        }
+
+        // Actualizar botones activos
+        viewButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.view === viewName) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Guardar preferencia
+        localStorage.setItem('cronogramaView', viewName);
+    }
+
+    if (viewButtons.length > 0) {
         viewButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const view = this.dataset.view;
-                
-                viewButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                if (view === 'gantt') {
-                    ganttView.style.display = 'block';
-                    cardsView.style.display = 'none';
-                    localStorage.setItem('cronogramaView', 'gantt');
-                } else {
-                    ganttView.style.display = 'none';
-                    cardsView.style.display = 'block';
-                    localStorage.setItem('cronogramaView', 'cards');
-                }
+                showView(view);
             });
         });
 
-        // Cargar vista guardada
-        const savedView = localStorage.getItem('cronogramaView') || 'gantt';
-        if (savedView === 'cards') {
-            const cardsBtn = document.querySelector('[data-view="cards"]');
-            if (cardsBtn) cardsBtn.click();
-        }
+        // Cargar vista guardada (por defecto: grouped)
+        const savedView = localStorage.getItem('cronogramaView') || 'grouped';
+        showView(savedView);
+    } else {
+        // Si no hay botones, asegurar que groupedView esté visible por defecto
+        if (groupedView) groupedView.style.display = 'block';
+        if (ganttView) ganttView.style.display = 'none';
+        if (cardsView) cardsView.style.display = 'none';
     }
 
     // Zoom del timeline
@@ -1078,6 +1228,78 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Toggle subactividades
+    document.querySelectorAll('.toggle-subactividades').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const actividadId = this.dataset.actividadId;
+            const container = document.getElementById('subactividades-' + actividadId);
+            if (container) {
+                container.style.display = container.style.display === 'none' ? 'block' : 'none';
+                const icon = this.querySelector('svg');
+                if (icon) {
+                    icon.style.transform = container.style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';
+                    icon.style.transition = 'transform 0.3s';
+                }
+            }
+        });
+    });
+
+    // Modal de subactividades
+    const modal = document.getElementById('subactividadModal');
+    const form = document.getElementById('subactividadForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalActividadId = document.getElementById('modalActividadId');
+    const modalSubactividadId = document.getElementById('modalSubactividadId');
+    const closeModal = document.getElementById('closeModal');
+    const cancelModal = document.getElementById('cancelModal');
+
+    // Abrir modal para crear
+    document.querySelectorAll('.btn-add-subactividad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const actividadId = this.dataset.actividadId;
+            modalActividadId.value = actividadId;
+            modalSubactividadId.value = '';
+            modalTitle.textContent = 'Nueva Subactividad';
+            form.reset();
+            form.action = `/cronograma/${actividadId}/subactividades`;
+            form.method = 'POST';
+            const methodInput = form.querySelector('input[name="_method"]');
+            if (methodInput) methodInput.remove();
+            modal.classList.add('active');
+        });
+    });
+
+    // Abrir modal para editar
+    document.querySelectorAll('.btn-edit-subactividad').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const subactividadId = this.dataset.subactividadId;
+            const actividadId = this.dataset.actividadId;
+            
+            // Aquí deberías cargar los datos de la subactividad
+            // Por ahora, solo abrimos el modal con la estructura
+            modalActividadId.value = actividadId;
+            modalSubactividadId.value = subactividadId;
+            modalTitle.textContent = 'Editar Subactividad';
+            
+            // Necesitarías hacer una petición AJAX para cargar los datos
+            // Por simplicidad, redirigimos a una ruta de edición
+            window.location.href = `/cronograma/${actividadId}/subactividades/${subactividadId}/edit`;
+        });
+    });
+
+    // Cerrar modal
+    if (closeModal) {
+        closeModal.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    if (cancelModal) {
+        cancelModal.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
 });
 </script>
 @endpush

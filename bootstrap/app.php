@@ -3,6 +3,7 @@
 use App\Models\Actividad;
 use App\Models\AutoanalisisRespuesta;
 use App\Models\DofaElement;
+use App\Models\Subactividad;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             });
             Route::bind('cronograma', function ($value) {
                 return Actividad::findOrFail($value);
+            });
+            Route::bind('subactividad', function ($value) {
+                return Subactividad::findOrFail($value);
             });
         },
     )
