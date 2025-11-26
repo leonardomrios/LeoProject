@@ -356,6 +356,12 @@
                                     $margenIzquierdo = ($diasDesdeInicio / $diasTotales) * 100;
                                 @endphp
                                 <div class="gantt-bar-container" style="position: relative; width: 100%; height: 100%;">
+                                    @if($fechaActual >= $fechaMin && $fechaActual <= $fechaMax)
+                                        @php
+                                            $posicionHoy = ($fechaMin->diffInDays($fechaActual) / $diasTotales) * 100;
+                                        @endphp
+                                        <div class="gantt-today-line" style="left: {{ $posicionHoy }}%;"></div>
+                                    @endif
                                     <div class="gantt-bar" 
                                          style="left: {{ $margenIzquierdo }}%; width: {{ $anchoBarra }}%; background-color: {{ $actividad->color }};"
                                          title="{{ $actividad->nombre }} - {{ $actividad->fecha_inicio->format('d/m/Y') }} a {{ $actividad->fecha_fin->format('d/m/Y') }}">
@@ -369,14 +375,6 @@
                         </div>
                     @endforeach
                 </div>
-
-                <!-- Línea de tiempo actual -->
-                @if($fechaActual >= $fechaMin && $fechaActual <= $fechaMax)
-                    @php
-                        $posicionHoy = ($fechaMin->diffInDays($fechaActual) / $diasTotales) * 100;
-                    @endphp
-                    <div class="gantt-today-line" style="left: {{ $posicionHoy }}%;"></div>
-                @endif
             @else
                 <div class="empty-state" style="padding: 3rem; text-align: center;">
                     <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -775,21 +773,30 @@
     bottom: 0;
     width: 2px;
     background: var(--primary-color);
-    z-index: 20;
+    z-index: 30;
     pointer-events: none;
+    transform: translateX(-50%);
 }
 
 .gantt-today-line::before {
     content: 'Hoy';
     position: absolute;
     top: -20px;
-    left: -15px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--primary-color);
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .gantt-today-line {
+        left: calc(200px + var(--posicion-hoy, 0%) * (100% - 200px) / 100) !important;
+    }
 }
 
 @media (max-width: 768px) {
