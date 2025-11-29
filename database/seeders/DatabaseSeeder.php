@@ -17,14 +17,20 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Crear usuario de prueba solo si no existe
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+            ]
+        );
 
-        // Seed de actividades del plan de gimnasio
+        // Seed de actividades del roadmap ML Engineer
         $this->call([
             ActividadSeeder::class,
+            ObjetivosProfesionalesSeeder::class,
+            DofaElementSeeder::class,
+            AutoanalisisRespuestaSeeder::class,
         ]);
     }
 }
