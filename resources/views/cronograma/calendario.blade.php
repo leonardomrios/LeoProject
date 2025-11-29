@@ -36,7 +36,7 @@
 .calendario-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
+    gap: 0.375rem;
     margin-bottom: 1rem;
 }
 
@@ -55,11 +55,16 @@
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    padding: 0.5rem;
-    min-height: 100px;
-    max-height: 120px;
-    overflow-y: auto;
+    padding: 0.375rem;
+    height: 90px;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.calendario-dia.con-subactividades {
+    overflow-y: auto;
 }
 
 .calendario-dia:hover {
@@ -78,12 +83,13 @@
 }
 
 .calendario-dia-numero {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
+    padding-bottom: 0.375rem;
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .calendario-dia.hoy .calendario-dia-numero {
@@ -93,7 +99,9 @@
 .calendario-subactividades {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
+    flex: 1;
+    overflow: hidden;
 }
 
 .calendario-subactividad {
@@ -180,9 +188,13 @@
 
 .calendario-vacio {
     text-align: center;
-    padding: 2rem;
+    padding: 0.25rem;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: 0.6875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
 }
 
 /* Modal */
@@ -349,7 +361,7 @@
                         $mostrarTodas = false;
                         $limite = 3;
                     @endphp
-                    <div class="calendario-dia {{ !$diaData['esDelMes'] ? 'otro-mes' : '' }} {{ $diaData['esHoy'] ? 'hoy' : '' }}">
+                    <div class="calendario-dia {{ !$diaData['esDelMes'] ? 'otro-mes' : '' }} {{ $diaData['esHoy'] ? 'hoy' : '' }} {{ count($subactividades) > 0 ? 'con-subactividades' : '' }}">
                         <div class="calendario-dia-numero">
                             {{ $diaData['fecha']->day }}
                         </div>
