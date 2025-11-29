@@ -513,16 +513,37 @@ class ActividadSeeder extends Seeder
                     'color' => $this->obtenerColor($categoria['nombre']),
                 ]);
 
-                // Crear subactividades
+                // Crear subactividades - distribuir dentro del rango de la actividad padre
+                $diasTotalesActividad = $fechaInicioActividad->diffInDays($fechaFinActividad) + 1;
+                $horasTotalesSubactividades = array_sum(array_column($actividadData['subactividades'], 'horas'));
+                
+                // Calcular proporción de días por hora para distribuir las subactividades
+                $diasPorHora = $horasTotalesSubactividades > 0 ? $diasTotalesActividad / $horasTotalesSubactividades : 1;
+                
                 $fechaSubActual = $fechaInicioActividad->copy();
-                $horasAcumSub = 0;
 
                 foreach ($actividadData['subactividades'] as $index => $subactividadData) {
                     $horasSub = $subactividadData['horas'];
-                    $semanasSub = ceil($horasSub / $horasSemanales);
-                    $diasSub = $semanasSub * 7;
+                    // Calcular días proporcionales basados en las horas
+                    $diasSub = max(1, (int) round($horasSub * $diasPorHora));
+                    
+                    // Asegurar que no se exceda el rango de la actividad padre
                     $fechaInicioSub = $fechaSubActual->copy();
-                    $fechaFinSub = $fechaSubActual->copy()->addDays($diasSub - 1);
+                    $fechaFinSub = min(
+                        $fechaSubActual->copy()->addDays($diasSub - 1),
+                        $fechaFinActividad->copy()
+                    );
+                    
+                    // Si la fecha de fin excede el rango de la actividad, ajustarla
+                    if ($fechaFinSub->gt($fechaFinActividad)) {
+                        $fechaFinSub = $fechaFinActividad->copy();
+                    }
+                    
+                    // Si la fecha de inicio es después de la fecha fin de la actividad, ajustar
+                    if ($fechaInicioSub->gt($fechaFinActividad)) {
+                        $fechaInicioSub = $fechaFinActividad->copy();
+                        $fechaFinSub = $fechaFinActividad->copy();
+                    }
 
                     Subactividad::create([
                         'actividad_id' => $actividad->id,
@@ -535,8 +556,13 @@ class ActividadSeeder extends Seeder
                         'orden' => $index + 1,
                     ]);
 
-                    $fechaSubActual->addDays($diasSub);
-                    $horasAcumSub += $horasSub;
+                    // Avanzar al día siguiente después de la fecha fin de esta subactividad
+                    $fechaSubActual = $fechaFinSub->copy()->addDay();
+                    
+                    // Si ya llegamos al final del rango de la actividad, detener
+                    if ($fechaSubActual->gt($fechaFinActividad)) {
+                        break;
+                    }
                 }
 
                 $fechaActual = $fechaFinActividad->copy()->addDay();

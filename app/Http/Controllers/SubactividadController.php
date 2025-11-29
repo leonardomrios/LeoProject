@@ -45,6 +45,20 @@ class SubactividadController extends Controller
             $validated['fecha_fin'] = $actividad->fecha_fin;
         }
 
+        // Validar que las fechas estén dentro del rango de la actividad padre
+        if ($validated['fecha_inicio'] < $actividad->fecha_inicio) {
+            $validated['fecha_inicio'] = $actividad->fecha_inicio;
+        }
+        if ($validated['fecha_inicio'] > $actividad->fecha_fin) {
+            $validated['fecha_inicio'] = $actividad->fecha_fin;
+        }
+        if ($validated['fecha_fin'] > $actividad->fecha_fin) {
+            $validated['fecha_fin'] = $actividad->fecha_fin;
+        }
+        if ($validated['fecha_fin'] < $actividad->fecha_inicio) {
+            $validated['fecha_fin'] = $actividad->fecha_inicio;
+        }
+
         $subactividad = Subactividad::create($validated);
 
         // Recalcular progreso de la actividad padre
@@ -77,6 +91,20 @@ class SubactividadController extends Controller
         ]);
 
         $validated['progreso'] = $validated['progreso'] ?? 0;
+
+        // Validar que las fechas estén dentro del rango de la actividad padre
+        if ($validated['fecha_inicio'] < $actividad->fecha_inicio) {
+            $validated['fecha_inicio'] = $actividad->fecha_inicio;
+        }
+        if ($validated['fecha_inicio'] > $actividad->fecha_fin) {
+            $validated['fecha_inicio'] = $actividad->fecha_fin;
+        }
+        if ($validated['fecha_fin'] > $actividad->fecha_fin) {
+            $validated['fecha_fin'] = $actividad->fecha_fin;
+        }
+        if ($validated['fecha_fin'] < $actividad->fecha_inicio) {
+            $validated['fecha_fin'] = $actividad->fecha_inicio;
+        }
 
         $subactividad->update($validated);
 
