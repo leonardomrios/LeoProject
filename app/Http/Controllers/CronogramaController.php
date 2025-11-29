@@ -43,6 +43,39 @@ class CronogramaController extends Controller
 
         $actividades = $query->with('subactividades')->get();
 
+        // Extraer categorías de las descripciones
+        $categorias = $actividades->map(function($actividad) {
+            if (preg_match('/Categoría:\s*([^\.]+)/', $actividad->descripcion, $matches)) {
+                return trim($matches[1]);
+            }
+            return 'Sin Categoría';
+        })->unique()->sort()->values();
+
+        // Agrupar actividades por categoría
+        $actividadesPorCategoria = $actividades->groupBy(function($actividad) {
+            if (preg_match('/Categoría:\s*([^\.]+)/', $actividad->descripcion, $matches)) {
+                return trim($matches[1]);
+            }
+            return 'Sin Categoría';
+        })->map(function($grupo, $categoria) {
+            $fechaMin = $grupo->min('fecha_inicio');
+            $fechaMax = $grupo->max('fecha_fin');
+            $progresoPromedio = (int) round($grupo->avg('progreso'));
+            $totalActividades = $grupo->count();
+            $completadas = $grupo->where('estado', 'completado')->count();
+            
+            return [
+                'nombre' => $categoria,
+                'actividades' => $grupo->sortBy('fecha_inicio'),
+                'fecha_inicio' => $fechaMin,
+                'fecha_fin' => $fechaMax,
+                'progreso' => $progresoPromedio,
+                'total' => $totalActividades,
+                'completadas' => $completadas,
+                'color' => $grupo->first()->color ?? '#6366f1',
+            ];
+        })->sortBy('nombre');
+
         // Agrupar actividades por mes
         $actividadesPorMes = $actividades->groupBy(function($actividad) {
             return $actividad->fecha_inicio->format('Y-m');
@@ -64,7 +97,29 @@ class CronogramaController extends Controller
             'por_vencer' => $actividades->filter(fn($a) => $a->esta_por_vencer)->count(),
         ];
 
-        return view('cronograma.index', compact('actividades', 'actividadesPorMes', 'estadisticas'));
+        // Obtener nivel de vista Gantt y categoría seleccionada
+        $ganttLevel = $request->get('gantt_level', 'categorias'); // categorias, categoria, actividades
+        $categoriaSeleccionada = $request->get('categoria');
+        
+        // Si se selecciona una categoría pero no existe, volver a categorías
+        if ($ganttLevel == 'categoria' && $categoriaSeleccionada && !isset($actividadesPorCategoria[$categoriaSeleccionada])) {
+            $ganttLevel = 'categorias';
+            $categoriaSeleccionada = null;
+        }
+        
+        // Si no hay categorías, mostrar actividades por defecto
+        if ($actividadesPorCategoria->isEmpty() && $ganttLevel == 'categorias') {
+            $ganttLevel = 'actividades';
+        }
+
+        return view('cronograma.index', compact(
+            'actividades', 
+            'actividadesPorMes', 
+            'estadisticas',
+            'actividadesPorCategoria',
+            'ganttLevel',
+            'categoriaSeleccionada'
+        ));
     }
 
     /**
