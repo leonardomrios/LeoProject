@@ -254,7 +254,7 @@
             <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                 <!-- Navegación jerárquica -->
                 <div class="gantt-breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
-                    @if($ganttLevel == 'categoria')
+                    @if($ganttLevel == 'categoria' && $categoriaSeleccionada)
                         <button class="btn btn-sm btn-secondary gantt-nav-btn" data-level="categorias" title="Ver todas las categorías">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; margin-right: 0.25rem;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -263,6 +263,21 @@
                         </button>
                         <span style="color: var(--text-secondary);">/</span>
                         <span style="color: var(--text-primary); font-weight: 500;">{{ $categoriaSeleccionada }}</span>
+                    @elseif($ganttLevel == 'actividad' && $actividadConSubactividades)
+                        @php
+                            preg_match('/Categoría:\s*([^\.]+)/', $actividadConSubactividades->descripcion, $matches);
+                            $categoriaActividad = $matches[1] ?? 'Sin Categoría';
+                        @endphp
+                        <button class="btn btn-sm btn-secondary gantt-nav-btn" data-level="categorias" title="Ver todas las categorías">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; margin-right: 0.25rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            Categorías
+                        </button>
+                        <span style="color: var(--text-secondary);">/</span>
+                        <a href="{{ route('cronograma.index', ['gantt_level' => 'categoria', 'categoria' => $categoriaActividad]) }}" style="color: var(--primary-color); text-decoration: none;">{{ $categoriaActividad }}</a>
+                        <span style="color: var(--text-secondary);">/</span>
+                        <span style="color: var(--text-primary); font-weight: 500;">{{ $actividadConSubactividades->nombre }}</span>
                     @elseif($ganttLevel == 'actividades')
                         <button class="btn btn-sm btn-secondary gantt-nav-btn" data-level="categorias" title="Ver todas las categorías">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; margin-right: 0.25rem;">
@@ -401,10 +416,14 @@
                         </div>
                     @endforeach
                 </div>
-            @elseif($ganttLevel == 'categoria' && $categoriaSeleccionada && isset($actividadesPorCategoria[$categoriaSeleccionada]))
+            @elseif($ganttLevel == 'categoria' && $categoriaSeleccionada)
+                @php
+                    $categoriaEncontrada = $actividadesPorCategoria->firstWhere('nombre', $categoriaSeleccionada);
+                @endphp
+                @if($categoriaEncontrada)
                 {{-- Vista de Actividades de una Categoría Específica --}}
                 @php
-                    $actividadesCategoria = $actividadesPorCategoria[$categoriaSeleccionada]['actividades'];
+                    $actividadesCategoria = $categoriaEncontrada['actividades'];
                     $fechaMin = $actividadesCategoria->min('fecha_inicio');
                     $fechaMax = $actividadesCategoria->max('fecha_fin');
                     $diasTotales = $fechaMin->diffInDays($fechaMax) + 1;
@@ -450,8 +469,167 @@
 
                 <div class="gantt-body">
                     @foreach($actividadesCategoria as $actividad)
-                        @include('cronograma.partials.gantt-row', ['actividad' => $actividad, 'fechaMin' => $fechaMin, 'fechaMax' => $fechaMax, 'diasTotales' => $diasTotales, 'fechaActual' => $fechaActual])
+                        <div class="gantt-row gantt-row-actividad" data-actividad-id="{{ $actividad->id }}" style="cursor: pointer;">
+                            <div class="gantt-sidebar">
+                                <div class="actividad-info">
+                                    <div class="actividad-nombre">
+                                        <span class="prioridad-badge prioridad-{{ $actividad->prioridad }}"></span>
+                                        {{ $actividad->nombre }}
+                                    </div>
+                                    <div class="actividad-meta">
+                                        <span class="estado-badge estado-{{ $actividad->estado }}">{{ ucfirst(str_replace('_', ' ', $actividad->estado)) }}</span>
+                                        <span class="progreso-texto">{{ $actividad->progreso }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gantt-timeline">
+                                @php
+                                    $diasDesdeInicio = $fechaMin->diffInDays($actividad->fecha_inicio);
+                                    $duracion = $actividad->fecha_inicio->diffInDays($actividad->fecha_fin) + 1;
+                                    $anchoBarra = ($duracion / $diasTotales) * 100;
+                                    $margenIzquierdo = ($diasDesdeInicio / $diasTotales) * 100;
+                                @endphp
+                                <div class="gantt-bar-container" style="position: relative; width: 100%; height: 100%;">
+                                    @if($fechaActual >= $fechaMin && $fechaActual <= $fechaMax)
+                                        @php
+                                            $posicionHoy = ($fechaMin->diffInDays($fechaActual) / $diasTotales) * 100;
+                                        @endphp
+                                        <div class="gantt-today-line" style="left: {{ $posicionHoy }}%;"></div>
+                                    @endif
+                                    <div class="gantt-bar" 
+                                         style="left: {{ $margenIzquierdo }}%; width: {{ $anchoBarra }}%; background-color: {{ $actividad->color }};"
+                                         title="{{ $actividad->nombre }} - {{ $actividad->fecha_inicio->format('d/m/Y') }} a {{ $actividad->fecha_fin->format('d/m/Y') }}">
+                                        <div class="gantt-bar-progress" style="width: {{ $actividad->progreso }}%;"></div>
+                                        <div class="gantt-bar-label">
+                                            {{ $actividad->nombre }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
+                </div>
+                @else
+                    <div class="empty-state" style="padding: 3rem; text-align: center;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Categoría no encontrada.</p>
+                        <a href="{{ route('cronograma.index', ['gantt_level' => 'categorias']) }}" class="btn btn-secondary">Volver a Categorías</a>
+                    </div>
+                @endif
+            @elseif($ganttLevel == 'actividad' && $actividadConSubactividades)
+                {{-- Vista de Subactividades de una Actividad Específica --}}
+                @php
+                    $subactividades = $actividadConSubactividades->subactividades->sortBy('fecha_inicio');
+                    if($subactividades->isNotEmpty()) {
+                        $fechaMin = $subactividades->min('fecha_inicio');
+                        $fechaMax = $subactividades->max('fecha_fin');
+                    } else {
+                        $fechaMin = $actividadConSubactividades->fecha_inicio;
+                        $fechaMax = $actividadConSubactividades->fecha_fin;
+                    }
+                    $diasTotales = $fechaMin->diffInDays($fechaMax) + 1;
+                    $fechaActual = now();
+                @endphp
+
+                <div class="gantt-header">
+                    <div class="gantt-sidebar-header">Subactividad</div>
+                    <div class="gantt-timeline-header">
+                        <div class="timeline-months">
+                            @php
+                                $mesActual = $fechaMin->copy()->startOfMonth();
+                                $meses = [];
+                                while($mesActual <= $fechaMax) {
+                                    $mesSiguiente = $mesActual->copy()->addMonth();
+                                    $diasEnMes = $mesActual->diffInDays(min($mesSiguiente, $fechaMax->copy()->endOfMonth())) + 1;
+                                    $meses[] = [
+                                        'fecha' => $mesActual->copy(),
+                                        'dias' => $diasEnMes
+                                    ];
+                                    $mesActual = $mesSiguiente;
+                                }
+                            @endphp
+                            @foreach($meses as $mes)
+                                <div class="timeline-month" style="width: {{ ($mes['dias'] / $diasTotales) * 100 }}%">
+                                    {{ $mes['fecha']->format('M Y') }}
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="timeline-days">
+                            @for($fecha = $fechaMin->copy(); $fecha <= $fechaMax; $fecha->addDay())
+                                <div class="timeline-day {{ $fecha->isToday() ? 'today' : '' }}" 
+                                     style="width: {{ (1 / $diasTotales) * 100 }}%"
+                                     title="{{ $fecha->format('d/m/Y') }}">
+                                    @if($fecha->day == 1 || $fecha->isToday())
+                                        {{ $fecha->format('d') }}
+                                    @endif
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gantt-body">
+                    @if($subactividades->isNotEmpty())
+                        @foreach($subactividades as $subactividad)
+                            <div class="gantt-row">
+                                <div class="gantt-sidebar">
+                                    <div class="actividad-info">
+                                        <div class="actividad-nombre">
+                                            <span class="prioridad-badge prioridad-media"></span>
+                                            {{ $subactividad->nombre }}
+                                        </div>
+                                        <div class="actividad-meta">
+                                            <span class="estado-badge estado-{{ $subactividad->estado }}">{{ ucfirst(str_replace('_', ' ', $subactividad->estado)) }}</span>
+                                            <span class="progreso-texto">{{ $subactividad->progreso }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="actividad-actions">
+                                        <a href="{{ route('subactividades.edit', ['actividad' => $actividadConSubactividades, 'subactividad' => $subactividad]) }}" class="btn-icon-small" title="Editar">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </a>
+                                        <form action="{{ route('subactividades.destroy', ['actividad' => $actividadConSubactividades, 'subactividad' => $subactividad]) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar esta subactividad?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-icon-small" title="Eliminar">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="gantt-timeline">
+                                    @php
+                                        $diasDesdeInicio = $fechaMin->diffInDays($subactividad->fecha_inicio);
+                                        $duracion = $subactividad->fecha_inicio->diffInDays($subactividad->fecha_fin) + 1;
+                                        $anchoBarra = ($duracion / $diasTotales) * 100;
+                                        $margenIzquierdo = ($diasDesdeInicio / $diasTotales) * 100;
+                                    @endphp
+                                    <div class="gantt-bar-container" style="position: relative; width: 100%; height: 100%;">
+                                        @if($fechaActual >= $fechaMin && $fechaActual <= $fechaMax)
+                                            @php
+                                                $posicionHoy = ($fechaMin->diffInDays($fechaActual) / $diasTotales) * 100;
+                                            @endphp
+                                            <div class="gantt-today-line" style="left: {{ $posicionHoy }}%;"></div>
+                                        @endif
+                                        <div class="gantt-bar" 
+                                             style="left: {{ $margenIzquierdo }}%; width: {{ $anchoBarra }}%; background-color: {{ $actividadConSubactividades->color }};"
+                                             title="{{ $subactividad->nombre }} - {{ $subactividad->fecha_inicio->format('d/m/Y') }} a {{ $subactividad->fecha_fin->format('d/m/Y') }}">
+                                            <div class="gantt-bar-progress" style="width: {{ $subactividad->progreso }}%;"></div>
+                                            <div class="gantt-bar-label">
+                                                {{ $subactividad->nombre }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state" style="padding: 3rem; text-align: center;">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">No hay subactividades en esta actividad.</p>
+                        </div>
+                    @endif
                 </div>
             @elseif($actividades->count() > 0)
                 {{-- Vista de Todas las Actividades (nivel actual) --}}
@@ -890,6 +1068,24 @@
 
 .gantt-breadcrumbs {
     font-size: 0.875rem;
+}
+
+.gantt-row-categoria {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.gantt-row-categoria:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.gantt-row-actividad {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.gantt-row-actividad:hover {
+    background-color: rgba(99, 102, 241, 0.05);
 }
 
 .gantt-level-buttons {
@@ -1429,6 +1625,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = new URL(window.location);
             url.searchParams.set('gantt_level', 'categoria');
             url.searchParams.set('categoria', categoria);
+            url.searchParams.delete('actividad');
+            window.location.href = url.toString();
+        });
+    });
+
+    // Manejar clic en filas de actividad (dentro de una categoría)
+    const ganttActividadRows = document.querySelectorAll('.gantt-row-actividad');
+    ganttActividadRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Evitar el clic si se hace clic en los botones de acción
+            if (e.target.closest('.actividad-actions')) {
+                return;
+            }
+            const actividadId = this.dataset.actividadId;
+            const url = new URL(window.location);
+            url.searchParams.set('gantt_level', 'actividad');
+            url.searchParams.set('actividad', actividadId);
             window.location.href = url.toString();
         });
     });

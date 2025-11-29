@@ -74,7 +74,12 @@ class CronogramaController extends Controller
                 'completadas' => $completadas,
                 'color' => $grupo->first()->color ?? '#6366f1',
             ];
-        })->sortBy('nombre');
+        });
+        
+        // Ordenar por fecha de inicio pero mantener acceso por nombre
+        $actividadesPorCategoria = $actividadesPorCategoria->sortBy(function($categoria) {
+            return $categoria['fecha_inicio']->timestamp;
+        });
 
         // Agrupar actividades por mes
         $actividadesPorMes = $actividades->groupBy(function($actividad) {
@@ -100,11 +105,25 @@ class CronogramaController extends Controller
         // Obtener nivel de vista Gantt y categoría seleccionada
         $ganttLevel = $request->get('gantt_level', 'categorias'); // categorias, categoria, actividades
         $categoriaSeleccionada = $request->get('categoria');
+        $actividadSeleccionada = $request->get('actividad'); // Inicializar siempre
         
         // Si se selecciona una categoría pero no existe, volver a categorías
-        if ($ganttLevel == 'categoria' && $categoriaSeleccionada && !isset($actividadesPorCategoria[$categoriaSeleccionada])) {
-            $ganttLevel = 'categorias';
-            $categoriaSeleccionada = null;
+        if ($ganttLevel == 'categoria' && $categoriaSeleccionada) {
+            $categoriaEncontrada = $actividadesPorCategoria->firstWhere('nombre', $categoriaSeleccionada);
+            if (!$categoriaEncontrada) {
+                $ganttLevel = 'categorias';
+                $categoriaSeleccionada = null;
+            }
+        }
+        
+        // Si se selecciona una actividad, obtener sus subactividades
+        $actividadConSubactividades = null;
+        if ($ganttLevel == 'actividad' && $actividadSeleccionada) {
+            $actividadConSubactividades = Actividad::with('subactividades')->find($actividadSeleccionada);
+            if (!$actividadConSubactividades) {
+                $ganttLevel = 'categorias';
+                $actividadSeleccionada = null;
+            }
         }
         
         // Si no hay categorías, mostrar actividades por defecto
@@ -118,7 +137,9 @@ class CronogramaController extends Controller
             'estadisticas',
             'actividadesPorCategoria',
             'ganttLevel',
-            'categoriaSeleccionada'
+            'categoriaSeleccionada',
+            'actividadSeleccionada',
+            'actividadConSubactividades'
         ));
     }
 
