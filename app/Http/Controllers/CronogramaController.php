@@ -245,4 +245,109 @@ class CronogramaController extends Controller
             'message' => 'Progreso actualizado exitosamente.',
         ]);
     }
+
+    /**
+     * Mostrar vista de calendario de subactividades
+     */
+    public function calendario(Request $request)
+    {
+        $fechaSeleccionada = $request->get('fecha', now()->format('Y-m'));
+        $fecha = \Carbon\Carbon::createFromFormat('Y-m', $fechaSeleccionada);
+        
+        // Obtener todas las subactividades del mes seleccionado
+        $fechaInicioMes = $fecha->copy()->startOfMonth();
+        $fechaFinMes = $fecha->copy()->endOfMonth();
+        
+        $subactividades = \App\Models\Subactividad::with('actividad')
+            ->where(function($query) use ($fechaInicioMes, $fechaFinMes) {
+                $query->whereBetween('fecha_inicio', [$fechaInicioMes, $fechaFinMes])
+                      ->orWhereBetween('fecha_fin', [$fechaInicioMes, $fechaFinMes])
+                      ->orWhere(function($q) use ($fechaInicioMes, $fechaFinMes) {
+                          $q->where('fecha_inicio', '<=', $fechaInicioMes)
+                            ->where('fecha_fin', '>=', $fechaFinMes);
+                      });
+            })
+            ->orderBy('fecha_inicio')
+            ->get();
+        
+        // Agrupar subactividades por día
+        $subactividadesPorDia = [];
+        foreach ($subactividades as $subactividad) {
+            $fechaInicio = \Carbon\Carbon::parse($subactividad->fecha_inicio);
+            $fechaFin = \Carbon\Carbon::parse($subactividad->fecha_fin);
+            
+            // Iterar sobre todos los días que cubre la subactividad
+            $fechaActual = max($fechaInicio, $fechaInicioMes);
+            $fechaFinal = min($fechaFin, $fechaFinMes);
+            
+            while ($fechaActual <= $fechaFinal) {
+                $diaKey = $fechaActual->format('Y-m-d');
+                if (!isset($subactividadesPorDia[$diaKey])) {
+                    $subactividadesPorDia[$diaKey] = [];
+                }
+                // Evitar duplicados
+                $existe = false;
+                foreach ($subactividadesPorDia[$diaKey] as $existente) {
+                    if ($existente->id == $subactividad->id) {
+                        $existe = true;
+                        break;
+                    }
+                }
+                if (!$existe) {
+                    $subactividadesPorDia[$diaKey][] = $subactividad;
+                }
+                $fechaActual->addDay();
+            }
+        }
+        
+        // Generar estructura del calendario
+        $calendario = [];
+        $primerDia = $fechaInicioMes->copy();
+        $ultimoDia = $fechaFinMes->copy();
+        
+        // Ajustar para que el calendario comience en lunes
+        $inicioSemana = $primerDia->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+        if ($inicioSemana->gt($primerDia)) {
+            $inicioSemana->subWeek();
+        }
+        
+        $fechaActual = $inicioSemana->copy();
+        $semanaActual = 0;
+        $maxSemanas = 6; // Máximo de semanas a mostrar
+        
+        while ($semanaActual < $maxSemanas) {
+            $diaSemana = $fechaActual->dayOfWeek;
+            if ($diaSemana == \Carbon\Carbon::MONDAY) {
+                $semanaActual++;
+                $calendario[$semanaActual] = [];
+            }
+            
+            $diaKey = $fechaActual->format('Y-m-d');
+            $calendario[$semanaActual][$diaSemana] = [
+                'fecha' => $fechaActual->copy(),
+                'esDelMes' => $fechaActual->month == $fecha->month,
+                'esHoy' => $fechaActual->isToday(),
+                'subactividades' => $subactividadesPorDia[$diaKey] ?? [],
+            ];
+            
+            $fechaActual->addDay();
+            
+            // Si ya pasamos el último día del mes y completamos la semana, salir
+            if ($fechaActual->gt($ultimoDia) && $diaSemana == \Carbon\Carbon::SUNDAY) {
+                break;
+            }
+        }
+        
+        // Mes anterior y siguiente
+        $mesAnterior = $fecha->copy()->subMonth()->format('Y-m');
+        $mesSiguiente = $fecha->copy()->addMonth()->format('Y-m');
+        
+        return view('cronograma.calendario', compact(
+            'calendario',
+            'fecha',
+            'mesAnterior',
+            'mesSiguiente',
+            'subactividadesPorDia'
+        ));
+    }
 }

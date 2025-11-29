@@ -14,8 +14,11 @@ Route::get('/', function () {
 Route::resource('objetivos', ObjetivoController::class);
 Route::resource('dofa', DofaController::class);
 Route::resource('autoanalisis', AutoanalisisController::class);
-Route::resource('cronograma', CronogramaController::class);
+
+// Rutas específicas de cronograma (deben ir antes del resource)
+Route::get('cronograma/calendario', [CronogramaController::class, 'calendario'])->name('cronograma.calendario');
 Route::post('cronograma/{cronograma}/progreso', [CronogramaController::class, 'updateProgreso'])->name('cronograma.progreso');
+Route::resource('cronograma', CronogramaController::class);
 
 // Subactividades
 Route::get('subactividades/create', [SubactividadController::class, 'create'])->name('subactividades.create');
