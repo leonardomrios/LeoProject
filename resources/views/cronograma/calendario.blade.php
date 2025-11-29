@@ -77,6 +77,16 @@
     background: var(--bg-secondary);
 }
 
+.calendario-dia.no-habil {
+    opacity: 0.5;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.calendario-dia.no-habil .calendario-dia-numero {
+    color: var(--text-secondary);
+}
+
 .calendario-dia.hoy {
     border: 2px solid var(--primary-color);
     background: rgba(99, 102, 241, 0.05);
@@ -361,7 +371,7 @@
                         $mostrarTodas = false;
                         $limite = 3;
                     @endphp
-                    <div class="calendario-dia {{ !$diaData['esDelMes'] ? 'otro-mes' : '' }} {{ $diaData['esHoy'] ? 'hoy' : '' }} {{ count($subactividades) > 0 ? 'con-subactividades' : '' }}">
+                    <div class="calendario-dia {{ !$diaData['esDelMes'] ? 'otro-mes' : '' }} {{ !$diaData['esHabil'] ? 'no-habil' : '' }} {{ $diaData['esHoy'] ? 'hoy' : '' }} {{ count($subactividades) > 0 ? 'con-subactividades' : '' }}">
                         <div class="calendario-dia-numero">
                             {{ $diaData['fecha']->day }}
                         </div>

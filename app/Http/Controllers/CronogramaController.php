@@ -270,31 +270,55 @@ class CronogramaController extends Controller
             ->orderBy('fecha_inicio')
             ->get();
         
-        // Agrupar subactividades por día
+        // Obtener festivos de Colombia (mismos que en el seeder)
+        $festivosColombia = $this->obtenerFestivosColombia();
+        $festivos = array_map(function($fechaStr) {
+            return \Carbon\Carbon::parse($fechaStr);
+        }, $festivosColombia);
+        
+        // Función para verificar si una fecha es día hábil
+        $esDiaHabil = function($fecha) use ($festivos) {
+            // No es sábado (6) ni domingo (0)
+            if ($fecha->dayOfWeek == \Carbon\Carbon::SATURDAY || $fecha->dayOfWeek == \Carbon\Carbon::SUNDAY) {
+                return false;
+            }
+            // No es día festivo
+            foreach ($festivos as $festivo) {
+                if ($fecha->isSameDay($festivo)) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        
+        // Agrupar subactividades por día (solo días hábiles)
         $subactividadesPorDia = [];
         foreach ($subactividades as $subactividad) {
             $fechaInicio = \Carbon\Carbon::parse($subactividad->fecha_inicio);
             $fechaFin = \Carbon\Carbon::parse($subactividad->fecha_fin);
             
-            // Iterar sobre todos los días que cubre la subactividad
+            // Iterar sobre todos los días que cubre la subactividad (solo días hábiles)
             $fechaActual = max($fechaInicio, $fechaInicioMes);
             $fechaFinal = min($fechaFin, $fechaFinMes);
             
             while ($fechaActual <= $fechaFinal) {
-                $diaKey = $fechaActual->format('Y-m-d');
-                if (!isset($subactividadesPorDia[$diaKey])) {
-                    $subactividadesPorDia[$diaKey] = [];
-                }
-                // Evitar duplicados
-                $existe = false;
-                foreach ($subactividadesPorDia[$diaKey] as $existente) {
-                    if ($existente->id == $subactividad->id) {
-                        $existe = true;
-                        break;
+                // Solo agregar si es día hábil
+                if ($esDiaHabil($fechaActual)) {
+                    $diaKey = $fechaActual->format('Y-m-d');
+                    if (!isset($subactividadesPorDia[$diaKey])) {
+                        $subactividadesPorDia[$diaKey] = [];
                     }
-                }
-                if (!$existe) {
-                    $subactividadesPorDia[$diaKey][] = $subactividad;
+                    // Evitar duplicados
+                    $existe = false;
+                    foreach ($subactividadesPorDia[$diaKey] as $existente) {
+                        if ($existente->id == $subactividad->id) {
+                            $existe = true;
+                            break;
+                        }
+                    }
+                    if (!$existe) {
+                        $subactividadesPorDia[$diaKey][] = $subactividad;
+                    }
                 }
                 $fechaActual->addDay();
             }
@@ -316,8 +340,11 @@ class CronogramaController extends Controller
         $maxSemanas = 6; // Máximo de semanas a mostrar
         
         while ($semanaActual < $maxSemanas) {
-            $diaSemana = $fechaActual->dayOfWeek;
-            if ($diaSemana == \Carbon\Carbon::MONDAY) {
+            $diaSemanaCarbon = $fechaActual->dayOfWeek; // Carbon: 0=Domingo, 1=Lunes, ..., 6=Sábado
+            // Convertir a índice del calendario: 0=Lunes, 1=Martes, ..., 6=Domingo
+            $diaSemana = $diaSemanaCarbon == 0 ? 6 : $diaSemanaCarbon - 1;
+            
+            if ($diaSemanaCarbon == \Carbon\Carbon::MONDAY) {
                 $semanaActual++;
                 $calendario[$semanaActual] = [];
             }
@@ -327,13 +354,14 @@ class CronogramaController extends Controller
                 'fecha' => $fechaActual->copy(),
                 'esDelMes' => $fechaActual->month == $fecha->month,
                 'esHoy' => $fechaActual->isToday(),
+                'esHabil' => $esDiaHabil($fechaActual),
                 'subactividades' => $subactividadesPorDia[$diaKey] ?? [],
             ];
             
             $fechaActual->addDay();
             
             // Si ya pasamos el último día del mes y completamos la semana, salir
-            if ($fechaActual->gt($ultimoDia) && $diaSemana == \Carbon\Carbon::SUNDAY) {
+            if ($fechaActual->gt($ultimoDia) && $diaSemanaCarbon == \Carbon\Carbon::SUNDAY) {
                 break;
             }
         }
@@ -349,5 +377,77 @@ class CronogramaController extends Controller
             'mesSiguiente',
             'subactividadesPorDia'
         ));
+    }
+    
+    /**
+     * Obtener lista de festivos de Colombia (2026, 2027, 2028)
+     */
+    private function obtenerFestivosColombia(): array
+    {
+        return [
+            // 2026
+            '2026-01-01', // Año Nuevo
+            '2026-01-12', // Día de los Reyes Magos
+            '2026-03-23', // Día de San José
+            '2026-03-24', // Jueves Santo
+            '2026-03-25', // Viernes Santo
+            '2026-03-28', // Lunes de Pascua
+            '2026-05-01', // Día del Trabajo
+            '2026-05-09', // Día de la Ascensión
+            '2026-05-30', // Corpus Christi
+            '2026-06-20', // Sagrado Corazón
+            '2026-06-27', // San Pedro y San Pablo
+            '2026-07-04', // Día de la Independencia
+            '2026-07-20', // Día de la Independencia
+            '2026-08-07', // Batalla de Boyacá
+            '2026-08-15', // Asunción de la Virgen
+            '2026-10-12', // Día de la Raza
+            '2026-11-02', // Día de los Difuntos
+            '2026-11-16', // Independencia de Cartagena
+            '2026-12-08', // Día de la Inmaculada Concepción
+            '2026-12-25', // Navidad
+            // 2027
+            '2027-01-01', // Año Nuevo
+            '2027-01-09', // Día de los Reyes Magos
+            '2027-03-20', // Día de San José
+            '2027-04-08', // Jueves Santo
+            '2027-04-09', // Viernes Santo
+            '2027-04-10', // Lunes de Pascua
+            '2027-05-01', // Día del Trabajo
+            '2027-05-22', // Día de la Ascensión
+            '2027-06-12', // Corpus Christi
+            '2027-06-19', // Sagrado Corazón
+            '2027-06-29', // San Pedro y San Pablo
+            '2027-07-03', // Día de la Independencia
+            '2027-07-20', // Día de la Independencia
+            '2027-08-07', // Batalla de Boyacá
+            '2027-08-15', // Asunción de la Virgen
+            '2027-10-12', // Día de la Raza
+            '2027-11-01', // Día de los Difuntos
+            '2027-11-13', // Independencia de Cartagena
+            '2027-12-08', // Día de la Inmaculada Concepción
+            '2027-12-25', // Navidad
+            // 2028
+            '2028-01-01', // Año Nuevo
+            '2028-01-10', // Día de los Reyes Magos
+            '2028-03-19', // Día de San José
+            '2028-03-23', // Jueves Santo
+            '2028-03-24', // Viernes Santo
+            '2028-03-27', // Lunes de Pascua
+            '2028-05-01', // Día del Trabajo
+            '2028-05-14', // Día de la Ascensión
+            '2028-06-04', // Corpus Christi
+            '2028-06-11', // Sagrado Corazón
+            '2028-06-29', // San Pedro y San Pablo
+            '2028-07-03', // Día de la Independencia
+            '2028-07-20', // Día de la Independencia
+            '2028-08-07', // Batalla de Boyacá
+            '2028-08-15', // Asunción de la Virgen
+            '2028-10-12', // Día de la Raza
+            '2028-11-02', // Día de los Difuntos
+            '2028-11-13', // Independencia de Cartagena
+            '2028-12-08', // Día de la Inmaculada Concepción
+            '2028-12-25', // Navidad
+        ];
     }
 }
